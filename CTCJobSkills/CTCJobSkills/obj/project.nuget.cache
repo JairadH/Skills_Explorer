@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "7tgfBAcGYbJFkYEnKoeesS2UL6SeDeJYVmXbJJMDjaL2TWXujXsdwxr3Q9LLW5id7NvevGV/x7Z/89/AcBqyig==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Jairad\\source\\repos\\CTCJobSkills\\CTCJobSkills\\CTCJobSkills.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Jairad\\.nuget\\packages\\system.net.http.json\\5.0.0\\system.net.http.json.5.0.0.nupkg.sha512",
+    "C:\\Users\\Jairad\\.nuget\\packages\\system.text.json\\5.0.0\\system.text.json.5.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

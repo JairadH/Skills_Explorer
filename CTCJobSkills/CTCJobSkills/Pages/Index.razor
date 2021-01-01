@@ -1,0 +1,413 @@
+﻿@* Witten by Jairad Hallo for the purpose of an interview at OAISD.
+    12/24/2020 *@
+@page "/"
+@inject HttpClient http;
+@inject IHttpClientFactory _ClientFactory
+
+
+
+
+<h1>Skills Explorer</h1>
+<div style="width:800px;">
+    <EditForm Model="@jobsModel">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div style="width:300px; float:left;">
+            <p>
+                @* First name input *@
+                <label for="firstName">First Name: </label><br>
+                <InputText id="firstName" @bind-Value="jobsModel.FirstName" />
+            </p>
+
+            <p>
+                @* Last name input *@
+                <label for="lirstName">Last Name: </label><br>
+                <InputText id="lastName" @bind-Value="jobsModel.LastName" />
+            </p>
+
+            <p>
+                @* Address input *@
+                <label for="address">Address:     </label><br>
+                <InputText id="address" @bind-Value="jobsModel.Address " />
+            </p>
+
+            <p>
+                @* Email input *@
+                <label for="email">Email Address: </label><br>
+                <InputText id="email" @bind-Value="jobsModel.eMail" />
+            </p>
+        </div>
+        @* District drop down input *@
+        <div style="width:300px; float:right;">
+            <label for="district">
+                Select your school district:<br>
+                <InputSelect @bind-Value="jobsModel.District">
+                    <option value="">Select District ...</option>
+                    <option value="allendale">Allendale</option>
+                    <option value="coopersville">Coopersville</option>
+                    <option value="hamilton">Hamilton</option>
+                    <option value="holland">Holland</option>
+                    <option value="hudsonville">Hudsonville</option>
+                    <option value="jenison">Jenison</option>
+                    <option value="saugatuck">Saugatuck</option>
+                    <option value="zeeland">Zeeland</option>
+                </InputSelect>
+            </label><br>
+
+
+
+            <p>
+                @* Job1 input *@
+            <label for="job1">Potential Job: </label><br>
+            <input @bind="Job1" @bind:event="oninput" />
+        </p>
+
+        <p>
+            @* Job2 input *@
+        <label for="job2">Potential Job: </label><br>
+        <input @bind="Job2" @bind:event="oninput" />
+
+    </p>
+
+    <p>
+        @* Job3 input *@
+    <label for="job3">Potential Job: </label><br>
+    <input @bind="Job3" @bind:event="oninput" />
+</p>
+</div>
+<br><br>
+</EditForm>
+</div>
+
+<div style="clear: both;"></div> @*// purely for formtting the Divs  *@
+
+<br />
+<button class="btn btn-primary" @onclick="@GetStudents" type="submit">Submit </button> @* submit button *@
+<br />
+<br />
+
+@*Success Message on button click*@
+@if (show == false)
+{
+}
+else
+{
+    <p style="color: green !important "> You've successfully submitted the form! </p>
+}
+
+<br />
+<br />
+
+
+@*// printing pulled data*@
+
+@if (string.IsNullOrWhiteSpace(errorString) == false) @*If error is empty*@
+{
+    <div class="h2">@errorString</div> 
+}
+else if (PulledSkills1 is null) /*For when the skills arent pulled yet , else there is an error */
+{
+}
+else
+{
+    // Prints the Jobs skills  for Job 1
+    <h2> Skills for @Job1 .</h2>
+    <table class="table">
+
+        <thead>
+            <tr>
+                <th>Skill</th>
+                <th>Description</th>
+                <th>Importance</th>
+            </tr>
+        </thead>
+        <tbody> 
+            @foreach (var x in PulledSkills1.skills.Take(3))
+            {
+                <tr>
+                    <td>@x.skill_name</td>
+                    <td> @x.description</td>
+                    <td> @x.importance</td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+    //If HttpSkills is null then it wont print, it was picked because if it's null it wasn't called.
+    @if (string.IsNullOrWhiteSpace(HTTPSkills2) == false)
+    {
+        <br>
+        <br>
+        // Prints the Jobs skills  for Job 2
+        <h2> Skills for @Job2 .</h2>
+        <table class="table">
+
+            <thead>
+                <tr>
+                    <th>Skill</th>
+                    <th>Description</th>
+                    <th>Importance</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var y in PulledSkills2.skills.Take(3))
+                {
+                    <tr>
+                        <td>@y.skill_name</td>
+                        <td> @y.description</td>
+                        <td> @y.importance</td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+    }
+    else
+    {
+    }
+    //If HttpSkills is null then it wont print, it was picked because if it's null it wasn't called.
+    @if (string.IsNullOrWhiteSpace(HTTPSkills3) == false)
+    {
+        <br>
+        <br>
+        // Prints the Jobs skills  for Job 3
+        <h2> Skills for @Job3 .</h2>
+        <table class="table">
+
+            <thead>
+                <tr>
+                    <th>Skill</th>
+                    <th>Description</th>
+                    <th>Importance</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var z in PulledSkills3.skills.Take(3))
+                {
+                    <tr>
+                        <td>@z.skill_name</td>
+                        <td> @z.description</td>
+                        <td> @z.importance</td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+
+    }
+    else
+    {
+    }
+}
+
+
+
+
+
+@code{
+
+
+    //Declaring Variables
+
+    // For success message
+    public bool show = false;
+
+    //Pull skills from the Model
+    JobSkills PulledSkills1;
+    JobSkills PulledSkills2;
+    JobSkills PulledSkills3;
+
+    //Error string if something happens with printing Skills.
+    string errorString;
+
+    //references for the HTML above
+    public JobsModel jobsModel = new JobsModel();
+
+    //Making lists to store the API Data that is pulled from related skills
+    List<Student> Students = new List<Student>();
+    List<Student> Students2 = new List<Student>();
+    List<Student> Students3 = new List<Student>();
+
+    //Converted Job input if there are spaces.
+    public string HTTPJob1;
+    public string HTTPJob2;
+    public string HTTPJob3;
+
+    //User input for Jobs, Then passed into HTTPJob
+    public string Job1;
+    public string Job2;
+    public string Job3;
+
+    //Skill ID is stored here so it can be passed into the URL
+    public string UUID1;
+    public string UUID2;
+    public string UUID3;
+
+    //stores url with Job ID Added so it can be passed into the API request.
+    public string HTTPSkills1;
+    public string HTTPSkills2;
+    public string HTTPSkills3;
+
+
+    //Pulls the Job ID so it can be referenced.
+    public class Student
+    {
+        //set uuid to something else errors.
+        public string uuid { get; set; } = " ";
+    }
+
+    //A lot of the work is done here after button press.
+    public async Task GetStudents()
+    {
+
+        //Show Success message once button is clicked.
+        show = true;
+
+
+        //No need for IF here becuase there should always be something in spot 1.
+        HTTPJob1 = Job1.Replace(" ", "%20");
+
+        //Pulls the Job ID from the API
+        Students = await http.GetFromJsonAsync<List<Student>>("http://api.dataatwork.org/v1/jobs/autocomplete?begins_with=" + HTTPJob1);
+
+        //Stores Job ID in UUID so it can be passed into URL for next API call.
+        foreach (var Student in Students)
+        {
+            UUID1 = Student.uuid;
+        }
+
+        //formatts the URL string so it can be passed into API call.
+        HTTPSkills1 = String.Format("http://api.dataatwork.org/v1/jobs/{0}/related_skills", UUID1);
+
+        //Calls the API to get Related Skills.
+        var request1 = new HttpRequestMessage(HttpMethod.Get,
+        HTTPSkills1);
+
+        //Client Factory Stuff. Helps with reaching out to API
+        var client1 = _ClientFactory.CreateClient();
+        HttpResponseMessage response = await client1.SendAsync(request1);
+
+        //If API call is successful
+        if (response.IsSuccessStatusCode)
+        {
+            //stored in Pulled skills.
+            PulledSkills1 = await response.Content.ReadFromJsonAsync<JobSkills>();
+
+            //set error back to null incase others run into errors or if they change inputs and resubmitt.
+            errorString = null;
+        }
+        else
+        {
+            // Print Error String.
+            errorString = $"Error getting skills. {response.ReasonPhrase}";
+        }
+
+
+
+
+
+        // JOB 2 Code
+        //If Job2 is not empty
+        if (Job2 != null)
+        {
+            //No need for IF here becuase there should always be something in spot 1.
+            HTTPJob2 = Job2.Replace(" ", "%20");
+
+            //Pulls the Job ID from the API
+            Students2 = await http.GetFromJsonAsync<List<Student>>("http://api.dataatwork.org/v1/jobs/autocomplete?begins_with=" + HTTPJob2);
+
+            //Stores Job ID in UUID so it can be passed into URL for next API call.
+            foreach (var Student in Students2)
+            {
+                UUID2 = Student.uuid;
+            }
+
+            //formatts the URL string so it can be passed into API call.
+            HTTPSkills2 = String.Format("http://api.dataatwork.org/v1/jobs/{0}/related_skills", UUID2);
+
+            //Calls the API to get Related Skills.
+            var request2 = new HttpRequestMessage(HttpMethod.Get,
+            HTTPSkills2);
+
+            //Client Factory Stuff. Helps with reaching out to API
+            var client2 = _ClientFactory.CreateClient();
+            HttpResponseMessage response2 = await client2.SendAsync(request2);
+
+
+            //If API call is successful
+            if (response2.IsSuccessStatusCode)
+            {
+                //stored in Pulled skills.
+                PulledSkills2 = await response2.Content.ReadFromJsonAsync<JobSkills>();
+
+                //set error back to null incase others run into errors or if they change inputs and resubmitt.
+                errorString = null;
+            }
+            else
+            {
+                // Print Error String.
+                errorString = $"Error getting skills. {response2.ReasonPhrase}";
+            }
+
+        }
+        else
+        {
+            //return noting if nothing is found
+        }
+
+
+
+
+
+        // JOB 3 Code
+        //If Job3 is not empty
+        if (Job3 != null)
+        {
+            //No need for IF here becuase there should always be something in spot 1.
+            HTTPJob3 = Job3.Replace(" ", "%20");
+
+            //Pulls the Job ID from the API
+            Students3 = await http.GetFromJsonAsync<List<Student>>("http://api.dataatwork.org/v1/jobs/autocomplete?begins_with=" + HTTPJob3);
+
+            //Stores Job ID in UUID so it can be passed into URL for next API call.
+            foreach (var Student in Students3)
+            {
+                UUID3 = Student.uuid;
+            }
+
+            //formatts the URL string so it can be passed into API call.
+            HTTPSkills3 = String.Format("http://api.dataatwork.org/v1/jobs/{0}/related_skills", UUID3);
+
+
+            //Calls the API to get Related Skills.
+            var request3 = new HttpRequestMessage(HttpMethod.Get,
+            HTTPSkills3);
+
+            //Client Factory Stuff. Helps with reaching out to API
+            var client3 = _ClientFactory.CreateClient();
+            HttpResponseMessage response3 = await client3.SendAsync(request3);
+
+
+            //If API call is successful
+            if (response3.IsSuccessStatusCode)
+            {
+                //stored in Pulled skills.
+                PulledSkills3 = await response3.Content.ReadFromJsonAsync<JobSkills>();
+
+                //set error back to null incase others run into errors or if they change inputs and resubmitt.
+                errorString = null;
+            }
+            else
+            {
+                // Print Error String.
+                errorString = $"Error getting skills. {response3.ReasonPhrase}";
+            }
+        }
+        else
+        {
+        }
+    }
+
+}
+
+
